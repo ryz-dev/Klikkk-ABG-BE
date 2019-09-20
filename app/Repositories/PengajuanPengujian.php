@@ -355,14 +355,14 @@ class PengajuanPengujian
                     'komentar' => $pengajuanPengujian->keterangan,
                     'discount' => $pengajuanPengujian->discount ?? 0,
                     'created_at' => $pengajuanPengujian->created_at,
-                    'nilai_diskon' => $nilai_diskon,
-                    'total_biaya_pengujian_setelah_diskon' => $pengajuanPengujian->discount ? $totalBiayaPengujian - $nilai_diskon : $totalBiayaPengujian
-            ];
+                ];
 
-            $data['data_pengujian'] = $dataPengujian;
-            $data['total_biaya_pengujian'] = $totalBiayaPengujian;
-            $data['biaya_tambahan'] = $biayaTambahan;
-            $data['grand_total'] = $grandTotal + $data['data_pemohon']['total_biaya_pengujian_setelah_diskon'];
+                $data['data_pengujian'] = $dataPengujian;
+                $data['biaya_tambahan'] = $biayaTambahan;
+                $data['total_biaya_pengujian'] = $totalBiayaPengujian;
+                $data['nilai_diskon'] = $nilai_diskon ;
+                $data['total_biaya_pengujian_setelah_diskon'] = $pengajuanPengujian->discount ? $totalBiayaPengujian - $nilai_diskon : $totalBiayaPengujian;
+            $data['grand_total'] = $grandTotal + $data['total_biaya_pengujian_setelah_diskon'];
 
             return $data;
         }
