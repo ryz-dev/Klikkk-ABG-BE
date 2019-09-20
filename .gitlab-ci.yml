@@ -41,6 +41,7 @@ build:
     - docker exec -i klikkk-abg-php-fpm php artisan config:clear
 #    - docker exec -i klikkk-abg-php-fpm php artisan storage:link
     - sudo chown -R www-data:www-data /var/www/klikkk-abg-be/
+    - sudo chmod -R 777 /var/www/klikkk-abg-be/storage
     - find /var/www/klikkk-abg-be/ -type f -exec chmod 664 {} \;
     - find /var/www/klikkk-abg-be/ -type d -exec chmod 775 {} \;
     - chgrp -R www-data storage bootstrap/cache
