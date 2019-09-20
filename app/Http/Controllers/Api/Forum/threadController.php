@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Forum;
 
+use File;
 use Auth;
 use App\Models\Thread;
 use App\Models\Comment;
@@ -120,7 +121,7 @@ class threadController extends Controller
             foreach ($request->images as $image) {
                 $galery = new Galery;
                 $uploadFile = $image;
-                $filename = time()."."."images".".".$uploadFile->getClientOriginalExtension();
+                $filename = time()."images".".".$uploadFile->getClientOriginalExtension();
                 $destination = 'upload/images';
                 $uploadFile->move(public_path($destination),$filename);
                 $galery->file = $filename;
@@ -259,12 +260,14 @@ class threadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(threadStoreRequest $request, $id)
+    public function update(Request $request, $id)
     {
         $thread = $this->thread->findThread($id);
+        $role = Auth::user()->roles->where('name','admin')->first();
+
         if(isset($thread))
         {
-            if(Auth::user()->id == $thread->created_by)
+            if(Auth::user()->id == $thread->created_by || isset($role))
             {
                 $thread->subject = $request->subject;
                 $thread->slug = str_slug($thread->subject);
@@ -272,6 +275,35 @@ class threadController extends Controller
                 $thread->category_id = $request->category_id;
                 $thread->created_by = Auth::user()->id;
                 $thread->save();
+
+                if($request->hasFile('image'))
+                {
+                    $galery = Galery::where('thread_id',$id)->first();                    
+                    $uploadFile = $request->image;
+                    $filename = time()."images".".".$uploadFile->getClientOriginalExtension();
+                    $destination = 'upload/images';
+                    $uploadFile->move(public_path($destination),$filename);
+                    $galery->file = $filename;
+                    $galery->user_id = Auth::user()->id;
+                    $galery->thread_id = $thread->id;
+                    $galery->type = "image";
+                    $galery->save();
+                }
+
+                if($request->hasFile('video'))
+                {
+                    $galery = Galery::where('thread_id',$id)->first();
+                    $uploadFile = $request->video;
+                    $filename = time()."video".".".$uploadFile->getClientOriginalExtension();
+                    $destination = 'upload/videos';
+                    $uploadFile->move(public_path($destination),$filename);
+                    $galery->file = $filename;
+                    $galery->user_id = Auth::user()->id;
+                    $galery->thread_id = $thread->id;
+                    $galery->type = "video";
+                    $galery->save();
+                }
+
                 if(isset($thread->id))
                 {
                     return $this->success();
@@ -301,6 +333,18 @@ class threadController extends Controller
         {
             if(Auth::user()->id == $thread->created_by || isset($role))
             {
+                $gallery = Galery::where('thread_id',$id)->first();
+                if(isset($gallery)) {
+                    $imagePath = public_path('upload/images/'.$gallery->file);
+                    if(File::exists($imagePath)){
+                        File::delete($imagePath);
+                    }
+                    $videoPath = public_path('upload/videos/'.$gallery->file);
+                    if(File::exists($videoPath)){
+                        File::delete($videoPath);
+                    }
+                    $gallery->delete();
+                }
                 $thread->delete();
                 return $this->success();
             } else {
