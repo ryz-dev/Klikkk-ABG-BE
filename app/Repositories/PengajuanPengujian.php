@@ -336,6 +336,7 @@ class PengajuanPengujian
             }
 
             $data = [];
+            $nilai_diskon = $totalBiayaPengujian * ($pengajuanPengujian->discount / 100);
             $data['data_pemohon'] = [
                     'regId' => $pengajuanPengujian->regId,
                     'nama_pemohon' => $pengajuanPengujian->nama_pemohon,
@@ -353,15 +354,15 @@ class PengajuanPengujian
                     'berkas_surat_pengantar' => buktiTransaksiPengajuan($pengajuanPengujian->berkas_surat_pengantar),
                     'komentar' => $pengajuanPengujian->keterangan,
                     'discount' => $pengajuanPengujian->discount ?? 0,
-                    'created_at' => $pengajuanPengujian->created_at
+                    'created_at' => $pengajuanPengujian->created_at,
+                    'nilai_diskon' => $nilai_diskon,
+                    'total_biaya_pengujian_setelah_diskon' => $pengajuanPengujian->discount ? $totalBiayaPengujian - $nilai_diskon : $totalBiayaPengujian
             ];
 
             $data['data_pengujian'] = $dataPengujian;
             $data['total_biaya_pengujian'] = $totalBiayaPengujian;
-            $data['nilai_diskon'] = $totalBiayaPengujian * ($pengajuanPengujian->discount / 100);
-            $data['total_biaya_pengujian_setelah_diskon'] = $pengajuanPengujian->discount ? $totalBiayaPengujian - $data['nilai_diskon'] : $totalBiayaPengujian;
             $data['biaya_tambahan'] = $biayaTambahan;
-            $data['grand_total'] = $grandTotal + $data['total_biaya_pengujian_setelah_diskon'];
+            $data['grand_total'] = $grandTotal + $data['data_pemohon']['total_biaya_pengujian_setelah_diskon'];
 
             return $data;
         }
@@ -763,6 +764,8 @@ class PengajuanPengujian
                 'nama_pemohon' => $value->nama_pemohon,
                 'tanggal_pengajuan' => prettyDate($value->created_at),
                 'tujuan_pengujian' => $value->tujuan_pengujian,
+                'nama_perusahaan' => $value->nama_perusahaan,
+                'rencana_lokasi_pengujian' => $value->rencana_lokasi_pengujian,
                 'avatar' => userAvatar($value->users->avatar)
             ];
 
